@@ -10,12 +10,9 @@ class ImageViewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
-      body: Center(
-        child: InteractiveViewer(
-          child: Image.file(image),
-        ),
-      ),
+      backgroundColor: Colors.black,
+      appBar: AppBar(backgroundColor: Colors.black),
+      body: Center(child: InteractiveViewer(child: Image.file(image))),
     );
   }
 }
