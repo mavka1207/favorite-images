@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 class ImageViewScreen extends StatelessWidget {
@@ -11,8 +10,23 @@ class ImageViewScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(backgroundColor: Colors.black),
-      body: Center(child: InteractiveViewer(child: Image.file(image))),
+
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        elevation: 0,
+      ),
+
+      body: Center(
+        child: Hero(
+          tag: image.path,
+          child: InteractiveViewer(
+            minScale: 1,
+            maxScale: 4,
+            child: Image.file(image),
+          ),
+        ),
+      ),
+
     );
   }
 }
