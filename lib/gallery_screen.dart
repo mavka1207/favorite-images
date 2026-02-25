@@ -87,7 +87,15 @@ class _GalleryScreenState extends State<GalleryScreen> {
         ],
       ),
       body: images.isEmpty
-          ? const Center(child: Text("No images selected"))
+    ? const Center(
+        child: Text(
+          "No images selected",
+          style: TextStyle(
+            color: Colors.grey,
+            fontSize: 16,
+          ),
+        ),
+      )
           : GridView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -99,11 +107,32 @@ class _GalleryScreenState extends State<GalleryScreen> {
               itemBuilder: (context, index) {
                 final image = images[index];
                 return Dismissible(
-                  key: ValueKey(image.path),
-                  direction: DismissDirection.up,
-                  onDismissed: (_) {
-                    deleteImage(index);
-                  },
+  key: ValueKey(image.path),
+  direction: DismissDirection.up,
+  confirmDismiss: (direction) async {
+    return await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Delete image?'),
+          content: const Text('Are you sure you want to delete this image?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    ) ?? false;
+  },
+  onDismissed: (_) {
+    deleteImage(index);
+  },
                   child: GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -113,9 +142,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                         ),
                       );
                     },
-                    onLongPress: () {
-                      deleteImage(index);
-                    },
+                  
                     child: Hero(
                       tag: image.path,
                       child: ClipRRect(
