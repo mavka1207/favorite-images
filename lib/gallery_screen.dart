@@ -35,20 +35,18 @@ class _GalleryScreenState extends State<GalleryScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: Icon(Icons.camera),
-              title: Text("Camera"),
+              leading: const Icon(Icons.camera),
+              title: const Text("Camera"),
               onTap: () {
                 Navigator.pop(context);
-
                 pickImage(ImageSource.camera);
               },
             ),
             ListTile(
-              leading: Icon(Icons.photo),
-              title: Text("Gallery"),
+              leading: const Icon(Icons.photo),
+              title: const Text("Gallery"),
               onTap: () {
                 Navigator.pop(context);
-
                 pickImage(ImageSource.gallery);
               },
             ),
@@ -62,6 +60,33 @@ class _GalleryScreenState extends State<GalleryScreen> {
     setState(() {
       images.removeAt(index);
     });
+  }
+
+  Future<void> _confirmDelete(int index) async {
+    final shouldDelete = await showDialog<bool>(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Delete image?'),
+              content: const Text('Are you sure you want to delete this image?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text('Delete'),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false;
+
+    if (shouldDelete) {
+      deleteImage(index);
+    }
   }
 
   @override
@@ -87,18 +112,20 @@ class _GalleryScreenState extends State<GalleryScreen> {
         ],
       ),
       body: images.isEmpty
-    ? const Center(
-        child: Text(
-          "No images selected",
-          style: TextStyle(
-            color: Colors.grey,
-            fontSize: 16,
-          ),
-        ),
-      )
+          ? const Center(
+              child: Text(
+                "No images selected",
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 16,
+                ),
+              ),
+            )
           : GridView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              gridDelegate:
+                  const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
                 crossAxisSpacing: 4,
                 mainAxisSpacing: 4,
@@ -106,53 +133,47 @@ class _GalleryScreenState extends State<GalleryScreen> {
               itemCount: images.length,
               itemBuilder: (context, index) {
                 final image = images[index];
-                return Dismissible(
-  key: ValueKey(image.path),
-  direction: DismissDirection.up,
-  confirmDismiss: (direction) async {
-    return await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Delete image?'),
-          content: const Text('Are you sure you want to delete this image?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Delete'),
-            ),
-          ],
-        );
-      },
-    ) ?? false;
-  },
-  onDismissed: (_) {
-    deleteImage(index);
-  },
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => ImageViewScreen(image: image),
-                        ),
-                      );
-                    },
-                  
-                    child: Hero(
-                      tag: image.path,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          child: Image.file(image, fit: BoxFit.cover),
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ImageViewScreen(image: image),
+                      ),
+                    );
+                  },
+                  child: Stack(
+                    children: [
+                      Hero(
+                        tag: image.path,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.file(
+                            image,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
-                    ),
+                      Positioned(
+                        top: 4,
+                        right: 4,
+                        child: InkWell(
+                          onTap: () => _confirmDelete(index),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.black54,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.all(4),
+                            child: const Icon(
+                              Icons.delete,
+                              size: 18,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 );
               },
